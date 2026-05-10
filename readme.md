@@ -228,4 +228,4 @@ python main.py
 ## 👤 Autor
 
 Jan‑Ivo Oelfke  
-Fachkraft für Lagerlogistik auf dem Weg zum Data Analyst
+Fachkraft für Lagerlogistik auf dem Weg zum Data/Prozess Analyst
