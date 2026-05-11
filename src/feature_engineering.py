@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
+from imblearn.over_sampling import RandomOverSampler
 
 def prepare_features(df, scale_numeric=False):
     """
@@ -11,6 +11,7 @@ def prepare_features(df, scale_numeric=False):
     - kategorische Variablen per One‑Hot-Encoding umwandeln
     - optional numerische Variablen skalieren
     - Train/Test‑Split erzeugen
+    - Oversampling der Minderheitsklasse (Option A)
     """
 
     print("Starte Feature Engineering...")
@@ -18,11 +19,9 @@ def prepare_features(df, scale_numeric=False):
     # ---------------------------------------------------
     # 1. Zielvariable definieren
     # ---------------------------------------------------
-    # Sicherstellen, dass die Zielspalte vorhanden ist
     if "left_company" not in df.columns:
         raise ValueError("Spalte 'left_company' fehlt im DataFrame!")
 
-    # Zielvariable extrahieren
     y = df["left_company"]
 
     # hire_date und employee_id sind für das Modell nicht relevant
@@ -34,14 +33,12 @@ def prepare_features(df, scale_numeric=False):
     # ---------------------------------------------------
     # 2. Kategorische Variablen encoden
     # ---------------------------------------------------
-    # Alle object‑Spalten identifizieren und One‑Hot‑Encoding anwenden
     categorical_cols = X.select_dtypes(include=["object"]).columns
     X = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
 
     # ---------------------------------------------------
     # 3. Optional: Numerische Variablen skalieren
     # ---------------------------------------------------
-    # Skalierung nur durchführen, wenn explizit aktiviert
     if scale_numeric:
         numeric_cols = X.select_dtypes(include=["int64", "float64"]).columns
         scaler = StandardScaler()
@@ -51,10 +48,18 @@ def prepare_features(df, scale_numeric=False):
     # ---------------------------------------------------
     # 4. Train/Test‑Split
     # ---------------------------------------------------
-    # Stratify sorgt dafür, dass die Klassenverteilung erhalten bleibt
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
+    # ---------------------------------------------------
+    # 5. Oversampling der Minderheitsklasse (Option A)
+    # ---------------------------------------------------
+    # RandomOverSampler ist stabiler als SMOTE bei gemischten Datentypen
+    ros = RandomOverSampler(random_state=42)
+    X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
+
+    print("Oversampling abgeschlossen.")
     print("Feature Engineering abgeschlossen.")
-    return X_train, X_test, y_train, y_test
+
+    return X_train_resampled, X_test, y_train_resampled, y_test
