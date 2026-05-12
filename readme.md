@@ -1,21 +1,27 @@
 # HR Churn Prediction – Employee Attrition Analysis  
-Datenanalyse von Mitarbeiterstammdaten, Performance, Abwesenheiten und HR-Events zur Vorhersage von Mitarbeiterabwanderung
+Technische Umsetzung einer vollständigen HR‑Datenpipeline zur quantitativen Analyse von Mitarbeiterfluktuation
+
+Dieses Projekt bildet ein realitätsnahes HR‑Datenumfeld ab und zeigt, wie Mitarbeiterstammdaten, Abwesenheiten, Performance‑Reviews und HR‑Events zu einem konsistenten Datensatz zusammengeführt werden können, um **Fluktuation messbar zu machen**.  
+Der Schwerpunkt liegt auf der **technischen Pipeline**, der Datenaufbereitung und der Berechnung einer **quantitativen Churn‑Rate**.
 
 ## 🧩 Problemstellung
 
-Ein mittelständisches Unternehmen hat in den letzten Jahren eine steigende Mitarbeiterfluktuation, insbesondere in bestimmten Abteilungen und Rollen. Kündigungen kommen oft überraschend, Wissen geht verloren und Nachbesetzungen dauern lange. HR und Fachbereiche haben das Gefühl, nur zu reagieren statt frühzeitig gegensteuern zu können.
+Ein mittelständisches Unternehmen stellt fest, dass die Mitarbeiterfluktuation in den letzten Jahren gestiegen ist. Besonders betroffen sind einzelne Abteilungen und Rollen. Kündigungen kommen oft überraschend, was zu Wissensverlust, längeren Nachbesetzungszeiten und zusätzlicher Belastung für die Teams führt.
 
-Ziel der Analyse ist es:
+Dieses Projekt konzentriert sich auf die **quantitative Analyse der Fluktuation**.  
+Ziel ist es, die HR‑Daten so aufzubereiten und zusammenzuführen, dass:
 
-- zentrale Einflussfaktoren für Mitarbeiterabwanderung sichtbar zu machen  
-- ein Modell zu entwickeln, das die Churn-Wahrscheinlichkeit pro Mitarbeiter schätzt  
-- Mitarbeitergruppen mit erhöhtem Risiko zu identifizieren  
-- Muster in Performance, Abwesenheiten und HR-Events zu erkennen  
-- eine datenbasierte Grundlage für gezielte Retention-Maßnahmen zu schaffen  
+- die Anzahl der Abgänge pro Zeitraum messbar wird  
+- Fluktuation strukturiert und reproduzierbar berechnet werden kann  
+- ein konsistenter Datensatz entsteht, der zukünftige Analysen ermöglicht  
+- ein technisches Fundament für spätere, tiefere Churn‑Analysen gelegt wird  
+
+Der Fokus liegt **nicht** auf der Identifikation von Ursachen oder Einflussfaktoren, sondern auf der **technischen Pipeline**, die Fluktuation sichtbar und auswertbar macht.
 
 ## 📦 Projektüberblick
 
-Dieses Projekt bildet ein vollständiges, realitätsnahes HR‑Datenumfeld ab und zeigt, wie ein Data Analyst Mitarbeiterdaten strukturiert analysiert, Risikofaktoren identifiziert und ein Vorhersagemodell für Mitarbeiterabwanderung entwickelt.
+Dieses Projekt bildet ein vollständiges, realitätsnahes HR‑Datenumfeld ab und zeigt, wie Mitarbeiterstammdaten, Abwesenheiten, Performance‑Reviews und HR‑Events technisch zu einem konsistenten Datensatz zusammengeführt werden können.  
+Der Fokus liegt auf der **Datenqualität**, der **Plausibilisierung** und der **quantitativen Berechnung der Fluktuation**.
 
 Das Projekt umfasst:
 
@@ -23,11 +29,8 @@ Das Projekt umfasst:
 - 2.000 Abwesenheiten  
 - 1.500 Performance‑Reviews  
 - 800 HR‑Events (z. B. Beförderungen, Abmahnungen, Rollenwechsel)  
-- vollständige Feature‑Engineering‑Pipeline  
-- automatisierte Modellbewertung  
-- Churn‑Score zur Priorisierung gefährdeter Mitarbeiter  
 
-Alle Daten sind synthetisch, aber realistisch modelliert.
+Alle Daten sind synthetisch, aber realitätsnah modelliert und wurden hinsichtlich Struktur, Vollständigkeit und Logik verbessert.
 
 ## 📁 Projektstruktur
 
@@ -54,14 +57,18 @@ hr_churn_prediction/
 │   ├── feature_engineering_visualization.py – Visualisierung der erzeugten Features  
 │   ├── model_training.py             – Training des Balanced Random Forest  
 │   └── churn_score.py                – Churn‑Score & Top‑Risikomitarbeiter  
-│  
-└── eda/  
-    ├── data_understanding.py         – Struktur‑ & Plausibilitätschecks  
-    └── explorative_analyse.py        – Vertiefende Analysen zu HR‑Mustern  
 
 ## 🗂️ Datensätze
 
-Die HR-Daten liegen logisch getrennt nach Entitäten vor und werden in der Pipeline zu einem konsistenten Mitarbeiter-Datensatz zusammengeführt.
+Die HR‑Daten liegen logisch getrennt nach Entitäten vor und werden in der Pipeline zu einem konsistenten Mitarbeiter‑Datensatz zusammengeführt.  
+Jede Tabelle bildet einen klar abgegrenzten Teil des HR‑Prozesses ab:
+
+- **employees.csv** – Stammdaten der Mitarbeiter  
+- **absences.csv** – Krankmeldungen, Urlaub, sonstige Abwesenheiten  
+- **performance_reviews.csv** – jährliche Leistungsbeurteilungen  
+- **hr_events.csv** – HR‑Ereignisse wie Beförderungen, Rollenwechsel oder Abmahnungen  
+
+Alle Datensätze sind synthetisch erzeugt, aber realitätsnah modelliert und wurden hinsichtlich Struktur, Vollständigkeit und Plausibilität überarbeitet.
 
 ### employees.csv
 - Mitarbeiter-ID  
@@ -87,38 +94,31 @@ Die HR-Daten liegen logisch getrennt nach Entitäten vor und werden in der Pipel
 - Mitarbeiter-ID  
 - Event-Datum  
 - Event-Typ (z. B. Beförderung, Abmahnung, Rollenwechsel, Gehaltserhöhung)  
-- Beschreibung (synthetisch)  
+- Beschreibung (synthetisch)
 
 ## 📊 Analyse & Erkenntnisse
 
-Bei der Analyse der HR‑Daten habe ich zunächst untersucht, wie sich Mitarbeiter über die letzten Jahre entwickelt haben. Dabei wurde schnell deutlich, dass bestimmte Muster stark mit erhöhter Fluktuation zusammenhängen.
+Die Analyse konzentriert sich auf die quantitative Betrachtung der Mitarbeiterfluktuation.  
+Ziel war es, die HR‑Daten so aufzubereiten, dass Abgänge strukturiert, reproduzierbar und über mehrere Jahre hinweg vergleichbar ausgewertet werden können.
 
-Auffällig war insbesondere:
+Im Rahmen der Analyse wurden folgende Schritte durchgeführt:
 
-- Mitarbeiter mit häufigen oder langen Abwesenheiten zeigen ein erhöhtes Churn‑Risiko  
-- Performance‑Einbrüche gehen oft mehreren HR‑Events voraus  
-- bestimmte Abteilungen haben deutlich höhere Fluktuationsraten als andere  
-- Rollen mit hoher Arbeitsbelastung weisen überdurchschnittlich viele Kündigungen auf  
+- Zusammenführung der Stammdaten, Abwesenheiten, Performance‑Reviews und HR‑Events  
+- Bereinigung und Plausibilisierung der Einzel‑Datensätze  
+- Aggregation der Informationen auf Mitarbeiterebene  
+- Berechnung der Fluktuationskennzahlen auf Basis des aggregierten Datensatzes
 
-Über das Feature Engineering und die Modellierung konnte ich diese Beobachtungen quantifizieren:
+Die Ergebnisse zeigen:
 
-- Performance‑Rating ist einer der stärksten Prädiktoren  
-- Abwesenheitstage korrelieren deutlich mit Churn‑Wahrscheinlichkeit  
-- negative HR‑Events (z. B. Abmahnungen) erhöhen das Risiko signifikant  
-- Beförderungen und Gehaltserhöhungen wirken stabilisierend  
+- Die Fluktuation variiert deutlich zwischen Abteilungen  
+- Bestimmte Rollen weisen überdurchschnittlich viele Abgänge auf  
 
-Insgesamt zeigt die Analyse:
+Der Fokus liegt ausschließlich auf der **quantitativen Messung** der Fluktuation.  
+Eine Analyse von Ursachen oder Risikofaktoren findet bewusst nicht statt.
 
-- Fluktuation ist kein Zufall, sondern folgt klaren Mustern  
-- bestimmte Mitarbeitergruppen sind besonders gefährdet  
-- HR‑Events und Performance‑Verläufe liefern wertvolle Frühindikatoren  
-- datenbasierte Retention‑Maßnahmen könnten viele Kündigungen verhindern  
+## 🔄 HR‑Events im Datensatz
 
-## 🔄 Analyse der HR‑Events
-
-Die HR‑Events zeigen, welche wichtigen Personalereignisse Mitarbeiter im Laufe ihrer Unternehmenszugehörigkeit durchlaufen haben und wie diese Ereignisse mit der Fluktuation zusammenhängen.
-
-Das Projekt berücksichtigt ein breites Spektrum an Events, darunter:
+Der Datensatz enthält ein breites Spektrum an HR‑Events, die wichtige Stationen im Mitarbeiterlebenszyklus abbilden, darunter:
 
 - Beförderungen  
 - Rollenwechsel  
@@ -127,88 +127,133 @@ Das Projekt berücksichtigt ein breites Spektrum an Events, darunter:
 - Versetzungen  
 - Onboarding‑/Offboarding‑Ereignisse  
 
-Auffällig war:
+Diese Informationen stehen als strukturierte Datenbasis zur Verfügung und ermöglichen grundsätzlich weiterführende Analysen, z. B. Zusammenhänge zwischen bestimmten Events und der Fluktuation.
 
-- Mitarbeiter mit negativen Events (z. B. Abmahnungen) haben ein deutlich erhöhtes Churn‑Risiko  
-- Beförderungen und Gehaltserhöhungen wirken stabilisierend und senken die Kündigungswahrscheinlichkeit  
-- Rollenwechsel kurz vor einer Kündigung treten häufiger auf als erwartet  
-- Einige Abteilungen zeigen besonders viele kritische HR‑Events innerhalb kurzer Zeiträume  
-
-Daraus folgt:
-
-- HR‑Events sind starke Frühindikatoren für Mitarbeiterabwanderung  
-- Mitarbeiter mit mehreren kritischen Events sollten gezielt beobachtet und unterstützt werden  
-- Positive Events (z. B. Beförderungen) können als Retention‑Instrument genutzt werden  
-- Häufungen negativer Events in einzelnen Teams können auf Führungs‑ oder Prozessprobleme hinweisen  
+Im Rahmen dieses Projekts werden die HR‑Events jedoch **nicht separat ausgewertet**. Sie dienen primär als Kontextinformationen innerhalb des Gesamtdatensatzes, ohne dass einzelne Eventtypen explizit visualisiert oder modelliert werden.
 
 ## 📈 Berechnete KPIs
 
-### Churn-Wahrscheinlichkeit  
-Vom Modell berechnete Wahrscheinlichkeit, dass ein Mitarbeiter das Unternehmen innerhalb eines definierten Zeitraums verlässt.
+Die Pipeline liefert drei Arten von Kennzahlen:  
+(1) deskriptive HR‑KPIs,  
+(2) Modellmetriken,  
+(3) Risikoscores.
 
-### Risiko-Score  
-Kombination aus Modellvorhersage und relevanten Einflussfaktoren (z. B. Performance, Abwesenheiten, HR‑Events).  
-Dient zur Priorisierung gefährdeter Mitarbeiter.
+### 🧩 1. Deskriptive HR‑KPIs
 
-### Performance-Trend  
-Entwicklung der Mitarbeiterleistung über die Zeit.  
-Negative Trends sind ein häufiger Frühindikator für steigende Fluktuation.
+Diese Kennzahlen stammen aus der aggregierten Mitarbeiterbasis:
 
-### Abwesenheitsindex  
-Misst Häufigkeit und Dauer von Abwesenheiten.  
-Ein hoher Wert korreliert oft mit erhöhtem Churn‑Risiko.
+- **Churn‑Verteilung** (Anteil der Mitarbeitenden, die das Unternehmen verlassen haben)  
+- **Verteilung der Unternehmenszugehörigkeit**  
+- **Churn nach Abteilung**  
+- **Churn nach Job‑Level**  
+- **Statistische Grundkennzahlen** (Alter, Gehalt, Performance, Abwesenheiten)
 
-### Event-Intensität  
-Anzahl und Art der HR‑Events pro Mitarbeiter.  
-Negative Events erhöhen das Risiko, positive Events wirken stabilisierend.
+Diese KPIs bilden die Grundlage für die spätere Modellierung.
 
-## 🚨 Churn‑Score (USP des Projekts)
+### 🤖 2. Modell‑KPIs
 
-Der Churn‑Score kombiniert die Modellvorhersage mit zentralen Einflussfaktoren wie Performance‑Trend, Abwesenheitsindex und HR‑Events. Dadurch entsteht ein klarer, interpretierbarer Risikoindikator pro Mitarbeiter.
+Für die Vorhersage der Kündigungswahrscheinlichkeit wird ein **Random Forest Classifier** eingesetzt.
 
-Churn‑Score = Modell‑Wahrscheinlichkeit × (1 + gewichtete Risikofaktoren)
+Wesentliche Metriken:
 
-Interpretation:
+- **Accuracy:** 0.73  
+- **Precision:** 0.80  
+- **Recall:** 0.36  
+- **F1‑Score:** 0.50  
 
-- hoher Score → kritisch  
-- mittlerer Score → beobachten  
-- niedriger Score → stabil  
+Die wichtigsten Einflussfaktoren laut Modell:
 
-Der Score ermöglicht es HR, gefährdete Mitarbeiter frühzeitig zu identifizieren und gezielt Maßnahmen einzuleiten.
+- years_at_company  
+- performance_mean  
+- job_level  
+- warnings  
+- sick_days  
+
+### 🚨 3. Churn‑Scoring
+
+Auf Basis der Modellwahrscheinlichkeit wird ein **Churn‑Score** berechnet, der Mitarbeitende in drei Risikogruppen einteilt:
+
+- **high risk**  
+- **medium risk**  
+- **low risk**
+
+Dieser Score ermöglicht eine priorisierte Betrachtung potenziell gefährdeter Mitarbeitender.
 
 ## 📉 Visualisierungen
 
-Automatisch erzeugte Diagramme:
+Die Pipeline erzeugt automatisch mehrere Diagramme, die in drei Kategorien organisiert sind:
 
-- Top‑Mitarbeiter nach Churn‑Score  
-- Mitarbeiter mit negativem Performance‑Trend  
-- Abteilungen mit der höchsten Fluktuationsrate  
-- Verteilung der Abwesenheitstage  
-- Häufigste HR‑Events pro Mitarbeiter  
-- Modell‑Evaluationsplots (ROC‑Curve, Confusion Matrix, Feature Importance)
+### 🧩 Explorative Datenanalyse (EDA)  
+Gespeichert unter: `plots/eda/`
 
-Alle Diagramme werden im Ordner plots/ gespeichert.
+- **correlation_matrix.png**  
+  Visualisiert Zusammenhänge zwischen numerischen Variablen.
+
+- **distribution_years_at_company.png**  
+  Histogramm der Unternehmenszugehörigkeit.
+
+- **churn_by_department.png**  
+  Vergleich der Kündigungsraten zwischen Abteilungen.
+
+- **churn_by_job_level.png**  
+  Analyse der Fluktuation über verschiedene Job-Level.
+
+### 🛠 Feature Engineering  
+Gespeichert unter: `plots/feature_engineering/`
+
+- **feature_type_counts.png**  
+  Übersicht über numerische, kategorische und One‑Hot‑Features.
+
+### 🤖 Modellbewertung  
+Gespeichert unter: `plots/model/`
+
+- **confusion_matrix.png**  
+  Zeigt True/False Positives und Negatives des Modells.
+
+- **feature_stability.png**  
+  Vergleich von Gini‑Importance und Permutation‑Importance zur Bewertung der Modellrobustheit.
+
+Alle Diagramme werden automatisch im jeweiligen Unterordner des Verzeichnisses `plots/` gespeichert.
 
 ## 🔧 Technische Umsetzung
 
 ### Hauptpipeline (main.py)
-1. HR‑Daten laden und zusammenführen  
-2. Struktur‑ und Plausibilitätschecks durchführen  
-3. Feature Engineering & Encoding anwenden  
-4. Balanced Random Forest trainieren  
-5. Modell bewerten und Kennzahlen ausgeben  
-6. Churn‑Score berechnen  
-7. Top‑Risikomitarbeiter identifizieren  
-8. Visualisierungen erzeugen und speichern  
+
+Die Pipeline ist modular aufgebaut und führt die folgenden Schritte automatisiert aus:
+
+1. **HR‑Eventdaten laden und auf Mitarbeiterebene aggregieren**  
+   (inkl. Berechnung von Tenure, Performance‑Trend, Abwesenheiten, Warnungen usw.)
+
+2. **Struktur‑ und Plausibilitätschecks**  
+   Prüfung auf fehlende Werte, Datentypen und erwartete Spalten.
+
+3. **Explorative Datenanalyse (EDA)**  
+   Erzeugt mehrere Visualisierungen zu Churn‑Mustern und Datenverteilungen.
+
+4. **Feature Engineering & One‑Hot‑Encoding**  
+   Transformation numerischer und kategorischer Variablen, Oversampling der Minderheitsklasse.
+
+5. **Training eines Random Forest Classifiers**  
+   Modellierung der Kündigungswahrscheinlichkeit.
+
+6. **Modellbewertung**  
+   Ausgabe von Accuracy, Precision, Recall, F1‑Score sowie Confusion Matrix und Feature‑Stabilität.
+
+7. **Churn‑Scoring**  
+   Berechnung eines kombinierten Risiko‑Scores pro Mitarbeiter und Einteilung in Risiko‑Kategorien.
+
+8. **Erzeugung und Speicherung aller Visualisierungen**  
+   Ablage in den Ordnern `plots/eda/`, `plots/feature_engineering/` und `plots/model/`.
 
 ### Technologien
-- Python 3  
-- pandas  
-- seaborn  
-- matplotlib  
-- scikit-learn  
-- imbalanced-learn  
-- joblib  
+
+- **Python 3**  
+- **pandas** – Datenverarbeitung  
+- **numpy** – numerische Berechnungen  
+- **matplotlib & seaborn** – Visualisierungen  
+- **scikit‑learn** – Modelltraining & Evaluation  
+- **imbalanced‑learn** – Oversampling (SMOTE/RandomOverSampler)  
+- **joblib** – Speichern und Laden des Modells  
 
 ## ▶️ Ausführung
 
@@ -218,11 +263,11 @@ python main.py
 
 ## 🧠 Was dieses Projekt zeigt
 
-- strukturierte Analyse von HR‑Daten  
-- Verständnis zentraler Einflussfaktoren auf Mitarbeiterabwanderung  
-- Entwicklung eines interpretierbaren Risiko‑Scores  
-- Kombination aus EDA, Feature Engineering und Modellierung  
-- saubere, modulare Code‑Struktur  
+- strukturierte und reproduzierbare Analyse eines komplexen HR‑Datensatzes  
+- Identifikation relevanter Einflussfaktoren auf Mitarbeiterabwanderung  
+- Entwicklung eines interpretierbaren Churn‑Scores zur Risikobewertung  
+- Kombination aus EDA, Feature Engineering und praxistauglicher Modellierung  
+- klare, modulare und nachvollziehbare Code‑Struktur  
 - datenbasiertes Storytelling für HR‑Entscheidungsträger  
 
 ## 👤 Autor
