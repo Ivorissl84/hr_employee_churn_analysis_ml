@@ -18,14 +18,16 @@ def save_plot(name):
     print(f"Plot gespeichert: {path}")
 
 
-def visualize_feature_engineering(X_train):
+def visualize_feature_engineering(X_train, feature_importances=None, permutation_importances=None):
     """
-    Minimalistische Feature-Engineering-Visualisierung:
-    - EIN Plot: Anzahl Features nach Typ
-    - EIN Report: Übersicht über die erzeugten Features
+    Erweiterte Feature-Engineering-Visualisierung:
+    - Anzahl Features nach Typ
+    - Feature Importance (Top 10)
+    - Vergleich: Gini vs. Permutation Importance
+    - Korrelation der encoded Features
     """
 
-    print("Starte reduzierte Feature-Engineering-Visualisierung...")
+    print("Starte erweiterte Feature-Engineering-Visualisierung...")
 
     # ---------------------------------------------------
     # 1. Feature-Typen bestimmen
@@ -35,7 +37,7 @@ def visualize_feature_engineering(X_train):
     other_cols = [col for col in X_train.columns if col not in numeric_cols + onehot_cols]
 
     # ---------------------------------------------------
-    # 2. EIN Balkendiagramm: Anzahl Features nach Typ
+    # 2. Plot: Anzahl Features nach Typ
     # ---------------------------------------------------
     plt.figure(figsize=(6, 4))
     counts = {
@@ -47,11 +49,60 @@ def visualize_feature_engineering(X_train):
     plt.title("Feature-Typen nach Feature Engineering")
     plt.ylabel("Anzahl Features")
     save_plot("feature_type_counts")
-    plt.show()
     plt.close()
 
     # ---------------------------------------------------
-    # 3. Minimalistischer Feature-Engineering-Report
+    # 3. Feature Importance (Top 10)
+    # ---------------------------------------------------
+    if feature_importances is not None:
+        top10 = feature_importances.sort_values("gini_importance", ascending=False).head(10)
+
+        plt.figure(figsize=(8, 5))
+        sns.barplot(
+            x="gini_importance",
+            y="feature",
+            data=top10,
+            hue="feature",
+            palette="viridis",
+            legend=False
+        )
+
+        plt.title("Top 10 Feature Importances (Gini)")
+        plt.xlabel("Gini Importance")
+        plt.ylabel("Feature")
+        save_plot("feature_importance_top10")
+        plt.close()
+
+    # ---------------------------------------------------
+    # 4. Vergleich: Gini vs. Permutation Importance
+    # ---------------------------------------------------
+    if feature_importances is not None and permutation_importances is not None:
+        merged = feature_importances.merge(permutation_importances, on="feature", how="left")
+
+        plt.figure(figsize=(8, 6))
+        sns.scatterplot(
+            x="gini_importance",
+            y="perm_importance",
+            data=merged
+        )
+        plt.title("Gini vs. Permutation Importance")
+        plt.xlabel("Gini Importance")
+        plt.ylabel("Permutation Importance")
+        save_plot("feature_importance_comparison")
+        plt.close()
+
+    # ---------------------------------------------------
+    # 5. Korrelation der encoded Features
+    # ---------------------------------------------------
+    plt.figure(figsize=(12, 10))
+    corr = X_train.corr()
+    sns.heatmap(corr, cmap="coolwarm", center=0)
+    plt.title("Feature-Korrelationen nach Encoding")
+    save_plot("feature_correlation_encoded")
+    plt.close()
+
+    # ---------------------------------------------------
+    # 6. Report
     # ---------------------------------------------------
     print("\n--- Feature-Engineering-Report ---")
     print(f"Gesamtzahl Features: {len(X_train.columns)}")
@@ -61,8 +112,5 @@ def visualize_feature_engineering(X_train):
 
     if len(onehot_cols) > 30:
         print("⚠️ Warnung: Sehr viele One-Hot-Features – mögliche Überdimensionierung.")
-
-    if len(numeric_cols) == 0:
-        print("⚠️ Warnung: Keine numerischen Features gefunden.")
 
     print("Feature-Engineering-Visualisierung abgeschlossen.")

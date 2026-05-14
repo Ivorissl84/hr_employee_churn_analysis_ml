@@ -4,8 +4,6 @@ import os
 
 # ---------------------------------------------------
 # Projektroot ermitteln (eine Ebene über diesem Skript)
-# Dadurch werden Plots IMMER im Projektordner gespeichert,
-# egal von wo das Skript ausgeführt wird.
 # ---------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -16,7 +14,6 @@ PLOT_DIR = os.path.join(BASE_DIR, "plots/eda")
 def save_plot(name):
     """
     Speichert den aktuellen Plot im plots/eda/-Ordner.
-    Der Ordner wird automatisch erstellt, falls er nicht existiert.
     """
     os.makedirs(PLOT_DIR, exist_ok=True)
     path = os.path.join(PLOT_DIR, f"{name}.png")
@@ -27,18 +24,17 @@ def save_plot(name):
 def run_eda(df):
     """
     Exploratory Data Analysis (EDA) – bereinigte, portfolio-optimierte Version.
-    Enthält:
-    - Basisinformationen
-    - Statistische Übersicht
-    - Korrelationen numerischer Variablen
-    - Verteilung relevanter Features
-    - Churn-Analysen nach Kategorien
     """
 
     print("Starte Exploratory Data Analysis...")
 
     # ---------------------------------------------------
-    # 1. Basisinformationen zum DataFrame
+    # 0. Kompakte Info statt HEAD-Ausgabe
+    # ---------------------------------------------------
+    print(f"EDA gestartet – Datensatzgröße: {df.shape[0]} Zeilen, {df.shape[1]} Spalten")
+
+    # ---------------------------------------------------
+    # 1. Basisinformationen
     # ---------------------------------------------------
     print("\n--- Grundlegende Informationen ---")
     df.info()
@@ -58,24 +54,46 @@ def run_eda(df):
     sns.heatmap(df[numeric_cols].corr(), annot=False, cmap="coolwarm")
     plt.title("Correlation Matrix")
     save_plot("correlation_matrix")
-    plt.show()
     plt.close()
 
     # ---------------------------------------------------
     # 3. Verteilung relevanter Features
-    # (nur years_at_company bleibt)
     # ---------------------------------------------------
+
+    # Tenure
     if "years_at_company" in df.columns:
         plt.figure(figsize=(6, 4))
         sns.histplot(df["years_at_company"], kde=True)
         plt.title("Distribution of years_at_company")
         save_plot("distribution_years_at_company")
-        plt.show()
+        plt.close()
+
+    # Performance
+    if "performance_mean" in df.columns:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(df["performance_mean"], kde=True)
+        plt.title("Distribution of performance_mean")
+        save_plot("distribution_performance_mean")
+        plt.close()
+
+    # Sick Days
+    if "sick_days" in df.columns:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(df["sick_days"], kde=False)
+        plt.title("Distribution of sick_days")
+        save_plot("distribution_sick_days")
+        plt.close()
+
+    # Vacation Days
+    if "vacation_days" in df.columns:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(df["vacation_days"], kde=False)
+        plt.title("Distribution of vacation_days")
+        save_plot("distribution_vacation_days")
         plt.close()
 
     # ---------------------------------------------------
-    # 4. Churn-Rate nach relevanten Kategorien
-    # (department & job_level bleiben)
+    # 4. Churn-Rate nach Kategorien
     # ---------------------------------------------------
     for col in ["department", "job_level"]:
         if col in df.columns:
@@ -84,7 +102,6 @@ def run_eda(df):
             plt.title(f"Churn Rate by {col}")
             plt.xticks(rotation=45)
             save_plot(f"churn_by_{col}")
-            plt.show()
             plt.close()
 
     print("EDA abgeschlossen.")

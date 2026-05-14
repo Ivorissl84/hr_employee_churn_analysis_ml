@@ -7,14 +7,23 @@ def prepare_features(df, scale_numeric=False):
     """
     Führt das Feature Engineering für das HR‑Dataset durch:
     - Zielvariable extrahieren
+    - employee_id sichern (für spätere Ausgabe)
     - irrelevante Spalten entfernen
     - kategorische Variablen per One‑Hot-Encoding umwandeln
     - optional numerische Variablen skalieren
-    - Train/Test‑Split erzeugen
-    - Oversampling der Minderheitsklasse (Option A)
+    - Train/Test‑Split erzeugen (inkl. employee_id!)
+    - Oversampling der Minderheitsklasse
     """
 
     print("Starte Feature Engineering...")
+
+    # ---------------------------------------------------
+    # 0. employee_id sichern (für spätere Ausgabe)
+    # ---------------------------------------------------
+    if "employee_id" not in df.columns:
+        raise ValueError("Spalte 'employee_id' fehlt im DataFrame!")
+
+    employee_ids = df["employee_id"].copy()
 
     # ---------------------------------------------------
     # 1. Zielvariable definieren
@@ -46,20 +55,32 @@ def prepare_features(df, scale_numeric=False):
         print("Numerische Features wurden skaliert.")
 
     # ---------------------------------------------------
-    # 4. Train/Test‑Split
+    # 4. Train/Test‑Split (inkl. employee_id!)
     # ---------------------------------------------------
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+    X_train, X_test, y_train, y_test, employee_ids_train, employee_ids_test = train_test_split(
+        X, y, employee_ids,
+        test_size=0.2,
+        random_state=42,
+        stratify=y
     )
 
     # ---------------------------------------------------
-    # 5. Oversampling der Minderheitsklasse (Option A)
+    # 5. Oversampling der Minderheitsklasse
     # ---------------------------------------------------
-    # RandomOverSampler ist stabiler als SMOTE bei gemischten Datentypen
     ros = RandomOverSampler(random_state=42)
     X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
 
     print("Oversampling abgeschlossen.")
     print("Feature Engineering abgeschlossen.")
 
-    return X_train_resampled, X_test, y_train_resampled, y_test
+    # ---------------------------------------------------
+    # 6. employee_id TRAIN + TEST zurückgeben
+    # ---------------------------------------------------
+    return (
+        X_train_resampled,
+        X_test,
+        y_train_resampled,
+        y_test,
+        employee_ids_train,
+        employee_ids_test
+    )
