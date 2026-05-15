@@ -3,18 +3,17 @@ import joblib
 
 
 def load_model(model_path="model/random_forest_model.pkl"):
-    print(f"Lade Modell aus: {model_path}")
-    model = joblib.load(model_path)
-    return model
+    """Lädt das Modell ohne Konsolenausgabe."""
+    return joblib.load(model_path)
 
 
 def predict_churn(df, model):
-    print("Berechne Churn-Wahrscheinlichkeiten...")
-    churn_scores = model.predict_proba(df)[:, 1]
-    return churn_scores
+    """Berechnet Churn-Wahrscheinlichkeiten ohne Prints."""
+    return model.predict_proba(df)[:, 1]
 
 
 def add_risk_categories(df, scores, threshold=0.35):
+    """Fügt Risiko-Kategorien hinzu – ohne Prints."""
     df = df.copy()
     df["churn_score"] = scores
     df["predicted_churn"] = (df["churn_score"] >= threshold).astype(int)
@@ -30,15 +29,18 @@ def add_risk_categories(df, scores, threshold=0.35):
 
 
 def get_top_risk(df, n=10):
+    """Gibt die Top-N Risiko-Mitarbeiter zurück."""
     return df.sort_values("churn_score", ascending=False).head(n)
 
 
 def score_employees(df, employee_ids, model_path="model/random_forest_model.pkl", top_n=10, threshold=0.35):
     """
-    employee_ids MUSS jetzt mitgegeben werden!
+    Führt das Churn-Scoring durch – ohne Prints.
+    Gibt zurück:
+    - df_scored: vollständiger Score-Datensatz
+    - top_risk: Top-N Risiko-Mitarbeiter
+    - risk_stats: Kennzahlen zur Risiko-Verteilung
     """
-
-    print("Starte Churn-Scoring...")
 
     # 1. Modell laden
     model = load_model(model_path)
@@ -49,27 +51,19 @@ def score_employees(df, employee_ids, model_path="model/random_forest_model.pkl"
     # 3. Risiko-Kategorien hinzufügen
     df_scored = add_risk_categories(df, scores, threshold=threshold)
 
-    # ---------------------------------------------------
-    # >>> NEU <<<
     # employee_id wieder anhängen
-    # ---------------------------------------------------
     df_scored["employee_id"] = employee_ids.values
 
-    # 4. Analyse der vorhergesagten Kündigungen
-    predicted_churn_count = df_scored["predicted_churn"].sum()
-    print("\n=== ANALYSE: VORHERGESAGTE KÜNDIGUNGEN ===")
-    print(f"Anzahl predicted_churn = 1: {predicted_churn_count}")
+    # 4. Risiko-Statistiken
+    risk_stats = {
+        "predicted_churn_count": int(df_scored["predicted_churn"].sum()),
+        "risk_category_counts": df_scored["risk_category"].value_counts()
+    }
 
-    # 5. Risiko-Verteilung
-    print("\n=== RISIKO-VERTEILUNG ===")
-    print(df_scored["risk_category"].value_counts())
-
-    # 6. Top-Risiko-Mitarbeiter bestimmen
+    # 5. Top-Risiko-Mitarbeiter bestimmen
     top_risk = get_top_risk(df_scored, n=top_n)
 
-    # ---------------------------------------------------
-    # 7. Department-Dummys zurück in eine Spalte wandeln
-    # ---------------------------------------------------
+    # 6. Department-Dummys zurückwandeln
     department_cols = [c for c in top_risk.columns if c.startswith("department_")]
 
     if department_cols:
@@ -80,11 +74,8 @@ def score_employees(df, employee_ids, model_path="model/random_forest_model.pkl"
         )
         top_risk = top_risk.drop(columns=department_cols)
 
-    # ---------------------------------------------------
-    # 8. employee_id nach vorne holen
-    # ---------------------------------------------------
+    # employee_id nach vorne holen
     cols = ["employee_id"] + [c for c in top_risk.columns if c != "employee_id"]
     top_risk = top_risk[cols]
 
-    print("\nChurn-Scoring abgeschlossen.")
-    return df_scored, top_risk
+    return df_scored, top_risk, risk_stats

@@ -1,18 +1,15 @@
 import pandas as pd
 import numpy as np
-import os
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 def aggregate_data(df):
     """
     Aggregiert Event-basierte HR-Daten auf Mitarbeiterebene.
-    Erwartet: DataFrame mit Spalten wie employee_id, event_type, value, date, etc.
-    Gibt: Einen DataFrame mit einem Eintrag pro Mitarbeiter zurück.
+    Gibt zurück:
+    - aggregated_df: finaler Mitarbeiter-Datensatz
+    - kpis: HR-Kennzahlen als Dictionary
+    - plot_data: Datenstrukturen für spätere Business-Impact-Plots
     """
-
-    print("Aggregiere Daten auf Mitarbeiterebene...")
 
     # ---------------------------------------------------
     # Datum sicherstellen
@@ -79,7 +76,6 @@ def aggregate_data(df):
         .merge(performance_mean, on="employee_id", how="left") \
         .merge(performance_trend, on="employee_id", how="left")
 
-    # Fehlende Werte auffüllen
     aggregated = aggregated.fillna({
         "sick_days": 0,
         "vacation_days": 0,
@@ -91,87 +87,29 @@ def aggregate_data(df):
     })
 
     # ---------------------------------------------------
-    # HR-KPIs (kompakt, ohne HEAD)
+    # HR-KPIs (als Dictionary zurückgeben)
     # ---------------------------------------------------
-    print("\n=== HR KPIs ===")
-
-    churn_rate = aggregated["left_company"].mean()
-    print(f"Churn Rate: {churn_rate:.3f}")
-
-    churn_by_department = aggregated.groupby("department")["left_company"].mean().sort_values(ascending=False)
-    print("\nChurn nach Abteilung:")
-    print(churn_by_department)
-
-    churn_by_job_level = aggregated.groupby("job_level")["left_company"].mean().sort_values(ascending=False)
-    print("\nChurn nach Job Level:")
-    print(churn_by_job_level)
-
-    avg_tenure = aggregated["years_at_company"].mean()
-    print(f"\nDurchschnittliche Tenure (Jahre): {avg_tenure:.2f}")
-
-    avg_performance = aggregated["performance_mean"].mean()
-    print(f"Durchschnittliche Performance: {avg_performance:.2f}")
-
-    avg_sick_days = aggregated["sick_days"].mean()
-    print(f"Durchschnittliche Krankheitstage: {avg_sick_days:.2f}")
-
-    print("\nAggregation abgeschlossen.")
+    kpis = {
+        "churn_rate": aggregated["left_company"].mean(),
+        "churn_by_department": aggregated.groupby("department")["left_company"].mean().sort_values(ascending=False),
+        "churn_by_job_level": aggregated.groupby("job_level")["left_company"].mean().sort_values(ascending=False),
+        "avg_tenure": aggregated["years_at_company"].mean(),
+        "avg_performance": aggregated["performance_mean"].mean(),
+        "avg_sick_days": aggregated["sick_days"].mean()
+    }
 
     # ---------------------------------------------------
-    # BUSINESS-IMPACT-PLOTS
+    # BUSINESS-IMPACT-PLOT-DATEN (nur Daten, keine Plots)
     # ---------------------------------------------------
-    plot_dir = "plots/aggregation"
-    os.makedirs(plot_dir, exist_ok=True)
+    plot_data = {
+        "pivot_churn_dept_job": aggregated.pivot_table(
+            values="left_company",
+            index="department",
+            columns="job_level",
+            aggfunc="mean"
+        ),
+        "scatter_tenure": aggregated[["years_at_company", "left_company"]],
+        "box_performance_trend": aggregated[["left_company", "performance_trend"]]
+    }
 
-    # 1. Heatmap: Churn nach Department × Job Level
-    pivot = aggregated.pivot_table(
-        values="left_company",
-        index="department",
-        columns="job_level",
-        aggfunc="mean"
-    )
-
-    plt.figure(figsize=(10, 6))
-    sns.heatmap(pivot, annot=True, cmap="Reds", fmt=".2f")
-    plt.title("Churn-Rate nach Department und Job Level")
-    heatmap_path = os.path.join(plot_dir, "churn_department_joblevel.png")
-    plt.savefig(heatmap_path, dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"Plot gespeichert: {heatmap_path}")
-
-    # 2. Scatterplot: Churn vs. Tenure
-    plt.figure(figsize=(8, 5))
-    sns.scatterplot(
-        data=aggregated,
-        x="years_at_company",
-        y="left_company",
-        hue="left_company",
-        palette=["grey", "red"]
-    )
-    plt.title("Churn vs. Tenure")
-    plt.xlabel("Years at Company")
-    plt.ylabel("Churn (0/1)")
-    tenure_path = os.path.join(plot_dir, "churn_vs_tenure.png")
-    plt.savefig(tenure_path, dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"Plot gespeichert: {tenure_path}")
-
-    # 3. Boxplot: Churn vs. Performance Trend (korrigiert)
-    plt.figure(figsize=(8, 5))
-    sns.boxplot(
-        data=aggregated,
-        x="left_company",
-        y="performance_trend",
-        hue="left_company",
-        palette=["grey", "red"],
-        legend=False
-    )
-    plt.title("Churn vs. Performance Trend")
-    plt.xlabel("Churn (0/1)")
-    plt.ylabel("Performance Trend")
-    perf_path = os.path.join(plot_dir, "churn_vs_performance_trend.png")
-    plt.savefig(perf_path, dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"Plot gespeichert: {perf_path}")
-
-    return aggregated
+    return aggregated, kpis, plot_data
