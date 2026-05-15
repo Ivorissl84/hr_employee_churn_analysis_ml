@@ -29,7 +29,7 @@ def main():
     print(f"Datensatz geladen: {df.shape[0]} Zeilen, {df.shape[1]} Spalten\n")
 
     # ---------------------------------------------------
-    # 2. Aggregation (liefert df_agg, KPIs, Plotdaten)
+    # 2. Aggregation
     # ---------------------------------------------------
     df_agg, kpis, agg_plots = aggregate_data(df)
 
@@ -39,7 +39,7 @@ def main():
     X_train, X_test, y_train, y_test, employee_ids_train, employee_ids_test = prepare_features(df_agg)
 
     # ---------------------------------------------------
-    # 4. Modelltraining (Modellqualität zuerst!)
+    # 4. Modelltraining
     # ---------------------------------------------------
     model_results = train_model(X_train, y_train, X_test, y_test)
 
@@ -71,7 +71,7 @@ def main():
     print(f"Sonstige Features:  {fe_summary['other_features']}\n")
 
     # ---------------------------------------------------
-    # 6. EDA (nur Daten)
+    # 6. EDA
     # ---------------------------------------------------
     eda_info, eda_plots = run_eda(df_agg)
 
@@ -94,7 +94,7 @@ def main():
     print(f"Durchschnittliche Krankheitstage: {kpis['avg_sick_days']:.2f}\n")
 
     # ---------------------------------------------------
-    # 8. Business Impact (Plots kommen später)
+    # 8. Business Impact
     # ---------------------------------------------------
     print("=== BUSINESS IMPACT ===")
     print("Business-Impact-Visualisierung wird am Ende erzeugt.\n")
@@ -124,32 +124,43 @@ def main():
     # ---------------------------------------------------
     print("\nErzeuge Plots...")
 
+    sns.set_theme(style="whitegrid")
+
+    # -------------------------
     # Modellplots
+    # -------------------------
     model_plot_dir = os.path.join(BASE_DIR, "plots/model")
     os.makedirs(model_plot_dir, exist_ok=True)
 
     # Confusion Matrix
     plt.figure(figsize=(6, 5))
-    sns.heatmap(model_results["confusion_matrix"], annot=True, fmt="d", cmap="Greys")
+    sns.heatmap(model_results["confusion_matrix"], annot=True, fmt="d", cmap="Blues")
     plt.title("Confusion Matrix")
     plt.savefig(os.path.join(model_plot_dir, "confusion_matrix.png"))
     plt.close()
 
-    # ROC
+    # ROC Curve
     plt.figure(figsize=(6, 5))
-    plt.plot(model_results["roc"]["fpr"], model_results["roc"]["tpr"])
+    plt.plot(model_results["roc"]["fpr"], model_results["roc"]["tpr"], color="blue")
+    plt.plot([0, 1], [0, 1], linestyle="--", color="grey")
     plt.title("ROC Curve")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
     plt.savefig(os.path.join(model_plot_dir, "roc_curve.png"))
     plt.close()
 
-    # Precision-Recall
+    # Precision-Recall Curve
     plt.figure(figsize=(6, 5))
-    plt.plot(model_results["pr"]["recall"], model_results["pr"]["precision"])
+    plt.plot(model_results["pr"]["recall"], model_results["pr"]["precision"], color="green")
     plt.title("Precision-Recall Curve")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
     plt.savefig(os.path.join(model_plot_dir, "precision_recall_curve.png"))
     plt.close()
 
+    # -------------------------
     # Feature Engineering Plots
+    # -------------------------
     fe_dir = os.path.join(BASE_DIR, "plots/feature_engineering")
     os.makedirs(fe_dir, exist_ok=True)
 
@@ -157,22 +168,73 @@ def main():
     plt.figure(figsize=(6, 4))
     sns.barplot(
         x=list(fe_plots["feature_type_counts"].keys()),
-        y=list(fe_plots["feature_type_counts"].values())
+        y=list(fe_plots["feature_type_counts"].values()),
+        color="steelblue"
     )
-    plt.title("Feature-Typen")
+    plt.title("Feature Types After Engineering")
+    plt.ylabel("Count")
     plt.savefig(os.path.join(fe_dir, "feature_type_counts.png"))
     plt.close()
 
+    # Top-10 Feature Importances
+    top10 = model_results["gini_importance"].head(10)
+    plt.figure(figsize=(8, 5))
+    sns.barplot(
+        x="gini_importance",
+        y="feature",
+        data=top10,
+        color="darkgreen"
+    )
+    plt.title("Top 10 Feature Importances (Gini)")
+    plt.xlabel("Gini Importance")
+    plt.ylabel("Feature")
+    plt.savefig(os.path.join(fe_dir, "feature_importance_top10.png"))
+    plt.close()
+
+    # Gini vs Permutation Importance
+    merged = model_results["gini_importance"].merge(
+        model_results["permutation_importance"], on="feature", how="left"
+    )
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(
+        x="gini_importance",
+        y="perm_importance",
+        data=merged,
+        color="darkorange"
+    )
+    plt.title("Gini vs. Permutation Importance")
+    plt.xlabel("Gini Importance")
+    plt.ylabel("Permutation Importance")
+    plt.savefig(os.path.join(fe_dir, "feature_importance_stability.png"))
+    plt.close()
+
+    # -------------------------
     # Business Impact Plots
+    # -------------------------
     bi_dir = os.path.join(BASE_DIR, "plots/aggregation")
     os.makedirs(bi_dir, exist_ok=True)
 
-    # Heatmap
+    # Heatmap Department × Job Level
     plt.figure(figsize=(10, 6))
-    sns.heatmap(agg_plots["pivot_churn_dept_job"], annot=True, cmap="Reds")
-    plt.title("Churn nach Department × Job Level")
+    sns.heatmap(agg_plots["pivot_churn_dept_job"], annot=True, cmap="Reds", fmt=".2f")
+    plt.title("Churn Rate by Department × Job Level")
     plt.savefig(os.path.join(bi_dir, "churn_department_joblevel.png"))
     plt.close()
+
+    # Churn vs Tenure
+    if "years_at_company" in df_agg.columns:
+        plt.figure(figsize=(8, 5))
+        sns.scatterplot(
+            x=df_agg["years_at_company"],
+            y=df_agg["left_company"],
+            color="purple",
+            alpha=0.6
+        )
+        plt.title("Churn vs. Tenure")
+        plt.xlabel("Years at Company")
+        plt.ylabel("Churn (0/1)")
+        plt.savefig(os.path.join(bi_dir, "churn_vs_tenure.png"))
+        plt.close()
 
     print("\n=== Pipeline erfolgreich abgeschlossen ===")
 
